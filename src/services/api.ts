@@ -1,8 +1,11 @@
-import type { ApiResponse, User } from '@/types'
+import type { FunctionMetadata, ExecuteResponse } from '@/types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
 
-async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<ApiResponse<T>> {
+async function fetchApi<T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     headers: {
       'Content-Type': 'application/json',
@@ -18,12 +21,21 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<Api
   return response.json()
 }
 
-export const userService = {
-  getUsers: () => fetchApi<User[]>('/users'),
-  getUser: (id: string) => fetchApi<User>(`/users/${id}`),
-  createUser: (user: Omit<User, 'id' | 'createdAt'>) =>
-    fetchApi<User>('/users', {
+export const api = {
+  getFunctions: async (): Promise<{ functions: FunctionMetadata[] }> => {
+    return fetchApi<{ functions: FunctionMetadata[] }>('/functions')
+  },
+
+  executeFunction: async (
+    functionName: string,
+    parameters: Record<string, unknown>
+  ): Promise<ExecuteResponse> => {
+    return fetchApi<ExecuteResponse>('/execute', {
       method: 'POST',
-      body: JSON.stringify(user),
-    }),
+      body: JSON.stringify({
+        function_name: functionName,
+        parameters,
+      }),
+    })
+  },
 }

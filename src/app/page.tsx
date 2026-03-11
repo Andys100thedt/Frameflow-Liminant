@@ -1,142 +1,144 @@
-import { ExampleCard } from "@/components/example-card";
-import { Button } from "@/components/ui/button";
+'use client'
+
+import { useCallback, useEffect, useState } from 'react'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  ReactFlow,
+  Background,
+  Controls,
+  MiniMap,
+  Panel,
+  type NodeMouseHandler,
+  BackgroundVariant,
+  SelectionMode,
+} from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
+import { useFlowStore } from '@/hooks/use-flow'
+import { nodeTypes } from '@/components/node-types'
+import { LeftSidebar } from '@/components/left-sidebar'
+import { RightSidebar } from '@/components/right-sidebar'
+import { TerminalPanel } from '@/components/terminal-panel'
+import { Toaster } from '@/components/ui/sonner'
+import { MousePointer2 } from 'lucide-react'
 
 export default function Home() {
+  const {
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    selectNode,
+    fetchFunctions,
+  } = useFlowStore()
+
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+
+  useEffect(() => {
+    fetchFunctions()
+  }, [fetchFunctions])
+
+  const onNodeClick: NodeMouseHandler = useCallback((_, node) => {
+    selectNode(node.id)
+  }, [selectNode])
+
+  const onPaneClick = useCallback(() => {
+    selectNode(null)
+    setContextMenu(null)
+  }, [selectNode])
+
+  const onContextMenu = useCallback((event: React.MouseEvent) => {
+    event.preventDefault()
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+    })
+  }, [])
+
+  const { addNode, functions } = useFlowStore()
+
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <h1 className="text-xl font-bold">Web App Template</h1>
-          <nav className="flex gap-4">
-            <Button variant="ghost">Home</Button>
-            <Button variant="ghost">About</Button>
-            <Button>Get Started</Button>
-          </nav>
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
+      <div className="flex-1 flex overflow-hidden">
+        <LeftSidebar />
+        
+        <div className="flex-1 relative">
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            onNodeClick={onNodeClick}
+            onPaneClick={onPaneClick}
+            onContextMenu={onContextMenu}
+            nodeTypes={nodeTypes}
+            fitView
+            //snapToGrid
+            //snapGrid={[1, 1]}
+            selectionMode={SelectionMode.Partial}
+            defaultEdgeOptions={{
+              type: 'smoothstep',
+              animated: true,
+              style: { stroke: '#3b82f6', strokeWidth: 2 },
+            }}
+          >
+            <Background variant={BackgroundVariant.Lines} gap={15} size={1} />
+            <Controls />
+            <MiniMap 
+              nodeColor={(node) => {
+                if (node.type === 'start') return '#a855f7'
+                return '#3b82f6'
+              }}
+              maskColor="rgb(0, 0, 0, 0.1)"
+            />
+            <Panel position="top-right" className="bg-background p-2 rounded border shadow-sm">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MousePointer2 className="w-4 h-4" />
+                <span>Right-click to add nodes</span>
+              </div>
+            </Panel>
+          </ReactFlow>
+
+          {contextMenu && (
+            <div
+              className="fixed bg-background border rounded-lg shadow-lg py-2 z-50 min-w-[180px]"
+              style={{ left: contextMenu.x, top: contextMenu.y }}
+              onClick={() => setContextMenu(null)}
+            >
+              <div className="px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+                Add Node
+              </div>
+              <div className="border-t my-1" />
+              <button
+                className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent flex items-center gap-2"
+                onClick={() => {
+                  addNode('start')
+                  setContextMenu(null)
+                }}
+              >
+                <span className="text-purple-500">▶</span> Start
+              </button>
+              {functions.map((func) => (
+                <button
+                  key={func.name}
+                  className="w-full px-3 py-1.5 text-left text-sm hover:bg-accent flex items-center gap-2"
+                  onClick={() => {
+                    addNode('function', func.name)
+                    setContextMenu(null)
+                  }}
+                >
+                  <span className="text-blue-500">◆</span> {func.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-      </header>
 
-      <main className="container mx-auto px-4 py-12">
-        <section className="mb-16 text-center">
-          <h2 className="mb-4 text-4xl font-bold tracking-tight">
-            Welcome to Web App Template
-          </h2>
-          <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-            A modern web application template built with Next.js, React, shadcn
-            UI, and Tailwind CSS. Start building your next project with this
-            solid foundation.
-          </p>
-        </section>
-
-        <section className="mb-16">
-          <h3 className="mb-8 text-center text-2xl font-semibold">
-            Features
-          </h3>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle>Next.js 16</CardTitle>
-                <CardDescription>
-                  The latest version of Next.js with App Router
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Server components, streaming, and optimized performance out of
-                  the box.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>shadcn UI</CardTitle>
-                <CardDescription>
-                  Beautiful, accessible components
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Pre-configured UI components built with Radix UI and Tailwind
-                  CSS.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>TypeScript</CardTitle>
-                <CardDescription>Type-safe development</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Full TypeScript support with strict mode enabled for better
-                  developer experience.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Tailwind CSS v4</CardTitle>
-                <CardDescription>Utility-first CSS framework</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Latest Tailwind CSS with improved performance and new
-                  features.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>ESLint</CardTitle>
-                <CardDescription>Code quality and consistency</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Pre-configured ESLint with Next.js recommended rules.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Project Structure</CardTitle>
-                <CardDescription>Organized and scalable</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Well-organized folder structure for components, hooks,
-                  services, and more.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        <section className="flex justify-center">
-          <ExampleCard
-            title="Example Component"
-            description="This demonstrates a reusable component with shadcn UI"
-          />
-        </section>
-      </main>
-
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>
-            Built with Next.js, React, shadcn UI, and Tailwind CSS
-          </p>
-        </div>
-      </footer>
+        <RightSidebar />
+      </div>
+      
+      <TerminalPanel />
+      <Toaster />
     </div>
-  );
+  )
 }
