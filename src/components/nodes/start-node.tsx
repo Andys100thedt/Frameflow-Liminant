@@ -6,6 +6,7 @@ import { StartNodeData } from '@/types'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import LICard from "@/components/imported/legacy-styled-input-card";
 
 function StartNode({ data, selected }: { data: StartNodeData; selected?: boolean }) {
   const [params, setParams] = useState<Record<string, string>>(data.parameters || {})
@@ -13,7 +14,7 @@ function StartNode({ data, selected }: { data: StartNodeData; selected?: boolean
   const handleParamChange = useCallback((paramName: string, value: string) => {
     setParams(prev => ({ ...prev, [paramName]: value }))
   }, [])
-
+  /*
   return (
     <Card className={`min-w-20 border-2 ${
       selected ? 'border-purple-500 shadow-lg' : 'border-purple-400'
@@ -29,6 +30,9 @@ function StartNode({ data, selected }: { data: StartNodeData; selected?: boolean
         className="!bg-purple-500 !w-3 !h-3"
       />
     </Card>
+  )*/
+  return (
+      <LICard data={data}></LICard>
   )
 }
 

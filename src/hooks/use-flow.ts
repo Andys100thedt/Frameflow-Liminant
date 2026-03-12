@@ -118,7 +118,7 @@ export const useFlowStore = create<FlowState>((set, get) => ({
         id,
         type: 'start',
         position,
-        data: { label: 'OEP', parameters: { input: '' } },
+        data: { label: 'Flow input', parameters: { input: '' } },
       }
       set({ nodes: [...get().nodes, newNode] })
     } else if (functionName) {
@@ -173,6 +173,10 @@ export const useFlowStore = create<FlowState>((set, get) => ({
   fetchFunctions: async () => {
     try {
       const response = await api.getFunctions()
+      // if no category, set to .root
+      const functions = response.functions.map((metadata: FunctionMetadata, idx: number)=>(
+        metadata.category === "" ? metadata.category = ".root" : metadata.category
+      ))
       set({ functions: response.functions })
     } catch (error) {
       get().addLog('error', `Failed to fetch functions: ${error}`)

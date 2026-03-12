@@ -10,6 +10,7 @@ export interface FunctionMetadata {
   description: string
   parameters: Parameter[]
   return_type: string
+  category: string
 }
 
 export interface FunctionDefinition extends FunctionMetadata {
@@ -68,4 +69,11 @@ export interface LogEntry {
   type: 'info' | 'success' | 'error' | 'command'
   message: string
   timestamp: Date
+}
+
+export interface CategoryNode {
+  name: string
+  path: string
+  functions: FunctionMetadata[]
+  children: CategoryNode[]
 }

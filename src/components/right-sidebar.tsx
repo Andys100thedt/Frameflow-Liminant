@@ -121,6 +121,7 @@ export function RightSidebar() {
                     onChange={(e) => handleParamChange(key, e.target.value)}
                     className="flex-1"
                   />
+                  {/*
                   <Button
                     variant="ghost"
                     size="icon"
@@ -128,11 +129,12 @@ export function RightSidebar() {
                   >
                     <Trash2 className="w-3 h-3" />
                   </Button>
+                  */}
                 </div>
               ))}
-              <Button variant="outline" size="sm" onClick={handleAddParam} className="w-full">
+              {/*<Button variant="outline" size="sm" onClick={handleAddParam} className="w-full">
                 + Add Parameter
-              </Button>
+              </Button>*/}
             </div>
           ) : (
             <div className="space-y-3">

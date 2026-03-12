@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import LCCard from '@/components/imported/legacy-styled-code-card'
 
 function FunctionNode({ data, selected }: { data: FunctionNodeData; selected?: boolean }) {
   const [params, setParams] = useState<Record<string, string>>(data.parameters || {})
@@ -16,7 +17,7 @@ function FunctionNode({ data, selected }: { data: FunctionNodeData; selected?: b
   }, [])
 
   const paramKeys = Object.keys(params)
-
+  /*
   return (
     <Card className={`min-w-[220px] border-2 ${
       selected ? 'border-blue-500 shadow-lg' : 'border-blue-400'
@@ -84,7 +85,8 @@ function FunctionNode({ data, selected }: { data: FunctionNodeData; selected?: b
         className="!bg-green-500 !w-3 !h-3"
       />
     </Card>
-  )
+  )*/
+  return <LCCard func={data.func} ></LCCard>
 }
 
 export default memo(FunctionNode)
